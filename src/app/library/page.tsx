@@ -10,7 +10,7 @@ export default function LibraryPage() {
   const owned = library.map((slug) => getGame(slug)).filter((game) => game !== undefined);
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-8 lg:px-6">
+    <main id="main" className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-8 lg:px-6">
       <h1 className="text-2xl font-semibold tracking-tight">Library</h1>
       <p className="mt-1 text-sm text-muted-foreground">Games you’ve checked out live here.</p>
       {owned.length === 0 ? (

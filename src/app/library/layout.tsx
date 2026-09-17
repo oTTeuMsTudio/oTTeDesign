@@ -1,8 +1,11 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Library",
-};
+export const metadata = pageMetadata(
+  "Library",
+  "/library",
+  "Games you’ve checked out on oTTeGames live in your library.",
+  { index: false },
+);
 
 export default function LibraryLayout({ children }: { children: React.ReactNode }) {
   return children;

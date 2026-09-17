@@ -4,9 +4,19 @@ import { notFound } from "next/navigation";
 import { Star } from "lucide-react";
 import { BuyBox } from "@/app/games/[slug]/buy-box";
 import { GameCard } from "@/components/game-card";
+import { JsonLd } from "@/components/json-ld";
 import { Badge } from "@/components/ui/badge";
 import { games, getGame, relatedGames } from "@/lib/games";
 import { formatRatingCount } from "@/lib/format";
+import {
+  absoluteUrl,
+  breadcrumbs,
+  ogImageUrl,
+  pageMetadata,
+  videoGameJsonLd,
+} from "@/lib/seo";
+
+export const dynamicParams = false;
 
 export function generateStaticParams() {
   return games.map((game) => ({ slug: game.slug }));
@@ -16,10 +26,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const game = getGame(slug);
   if (!game) return { title: "Game" };
-  return {
-    title: game.title,
-    description: game.description,
-  };
+  return pageMetadata(game.title, `/games/${game.slug}`, game.description, {
+    keywords: [game.genre, game.studio, ...game.tags],
+    images: [ogImageUrl(game.title, game.studio), absoluteUrl(game.image)],
+  });
 }
 
 export default async function GamePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -28,20 +38,41 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
   if (!game) notFound();
 
   const more = relatedGames(game);
+  const path = `/games/${game.slug}`;
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 lg:px-6">
-      <p className="text-xs text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">
-          Store
-        </Link>
-        <span className="mx-1.5">/</span>
-        <Link href={`/games?genre=${game.genre}`} className="capitalize hover:text-foreground">
-          {game.genre}
-        </Link>
-        <span className="mx-1.5">/</span>
-        <span className="text-foreground">{game.title}</span>
-      </p>
+    <main id="main" className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-6 lg:px-6">
+      <JsonLd data={videoGameJsonLd(game)} />
+      <JsonLd
+        data={breadcrumbs([
+          { name: "Store", path: "/" },
+          { name: "Browse", path: "/games" },
+          { name: game.title, path },
+        ])}
+      />
+      <nav className="text-xs text-muted-foreground" aria-label="Breadcrumb">
+        <ol className="flex flex-wrap items-center">
+          <li>
+            <Link href="/" className="hover:text-foreground">
+              Store
+            </Link>
+          </li>
+          <li className="mx-1.5" aria-hidden="true">
+            /
+          </li>
+          <li>
+            <Link href={`/games?genre=${game.genre}`} className="capitalize hover:text-foreground">
+              {game.genre}
+            </Link>
+          </li>
+          <li className="mx-1.5" aria-hidden="true">
+            /
+          </li>
+          <li className="text-foreground">
+            <span aria-current="page">{game.title}</span>
+          </li>
+        </ol>
+      </nav>
 
       <div className="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1.5fr)_340px]">
         <div>

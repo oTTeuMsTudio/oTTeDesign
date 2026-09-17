@@ -1,7 +1,17 @@
 import { GenreNav } from "@/components/genre-nav";
 import { GameRow } from "@/components/game-row";
 import { HeroFeatured } from "@/components/hero-featured";
+import { JsonLd } from "@/components/json-ld";
 import { games } from "@/lib/games";
+import {
+  itemListJsonLd,
+  organizationJsonLd,
+  pageMetadata,
+  websiteJsonLd,
+} from "@/lib/seo";
+import { title } from "@/config";
+
+export const metadata = pageMetadata(title, "/");
 
 export default function StorePage() {
   const hero = games.find((game) => game.hero) ?? games[0];
@@ -10,7 +20,16 @@ export default function StorePage() {
   const fresh = games.filter((game) => game.isNew);
 
   return (
-    <main className="mx-auto w-full max-w-[1400px] flex-1 space-y-10 px-4 py-6 lg:px-6">
+    <main id="main" className="mx-auto w-full max-w-[1400px] flex-1 space-y-10 px-4 py-6 lg:px-6">
+      <JsonLd data={websiteJsonLd()} />
+      <JsonLd data={organizationJsonLd()} />
+      <JsonLd
+        data={itemListJsonLd(
+          "Featured games",
+          "/",
+          featured.map((game) => ({ name: game.title, path: `/games/${game.slug}` })),
+        )}
+      />
       <HeroFeatured game={hero} />
       <GenreNav />
       <GameRow title="Featured" href="/games" games={featured} />

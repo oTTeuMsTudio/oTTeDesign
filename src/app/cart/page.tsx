@@ -18,7 +18,7 @@ export default function CartPage() {
   const total = useMemo(() => lines.reduce((sum, game) => sum + game.price, 0), [lines]);
 
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 lg:px-6">
+    <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 lg:px-6">
       <h1 className="text-2xl font-semibold tracking-tight">Cart</h1>
       {lines.length === 0 ? (
         <EmptyState title="Your cart is empty" href="/games" action="Browse games" />
