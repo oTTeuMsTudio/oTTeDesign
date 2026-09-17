@@ -1,6 +1,6 @@
-# oTTe Design
+# oTTe
 
-A creator-first digital asset marketplace inspired by [Fab](https://www.fab.com) — Discover, Library, listing pages, search filters, cart, and wishlist.
+A simple game marketplace — storefront, catalog, game pages, cart, and library.
 
 ```bash
 npm install

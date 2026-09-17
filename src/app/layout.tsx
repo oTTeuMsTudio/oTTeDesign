@@ -19,11 +19,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "oTTe — The creator-first marketplace",
+    default: "oTTe — Game marketplace",
     template: "%s · oTTe",
   },
-  description:
-    "Discover, buy, and share digital assets for Unreal, Unity, Blender, and every other tool. oTTe is a creator-first marketplace for environments, characters, materials, and VFX.",
+  description: "A simple marketplace for games. Browse the catalog, add titles to your cart, and keep a library of what you own.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -35,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <TooltipProvider>
           <CartProvider>
-            <Suspense fallback={<div className="h-14 border-b border-white/8 bg-[#0c0c0c]" />}>
+            <Suspense fallback={<div className="h-14 border-b border-border bg-background" />}>
               <SiteHeader />
             </Suspense>
             {children}

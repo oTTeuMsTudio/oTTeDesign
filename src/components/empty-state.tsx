@@ -11,9 +11,9 @@ export function EmptyState({
   action: string;
 }) {
   return (
-    <div className="mt-10 rounded-xl border border-white/8 bg-[#141414] p-12 text-center">
+    <div className="mt-10 rounded-xl border border-border bg-card p-12 text-center">
       <p className="text-lg font-medium">{title}</p>
-      <Button asChild className="mt-5 bg-white text-black hover:bg-white/90">
+      <Button asChild className="mt-5">
         <Link href={href}>{action}</Link>
       </Button>
     </div>
