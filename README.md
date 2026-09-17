@@ -1,4 +1,4 @@
-# oTTe
+# oTTeGames
 
 A simple game marketplace — storefront, catalog, game pages, cart, and library.
 

@@ -5,7 +5,7 @@ import { filterGames, isGenre } from "@/lib/games";
 
 export const metadata = {
   title: "Browse games",
-  description: "Browse the oTTe game catalog by genre or search.",
+  description: "Browse the oTTeGames catalog by genre or search.",
 };
 
 export default async function GamesPage({

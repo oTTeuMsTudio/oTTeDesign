@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "oTTe — Game marketplace",
-    template: "%s · oTTe",
+    default: "oTTeGames — Game marketplace",
+    template: "%s · oTTeGames",
   },
   description: "A simple marketplace for games. Browse the catalog, add titles to your cart, and keep a library of what you own.",
 };

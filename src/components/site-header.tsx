@@ -31,7 +31,7 @@ export function SiteHeader() {
           </SheetTrigger>
           <SheetContent side="left" className="w-72 pt-8">
             <SheetHeader>
-              <SheetTitle className="text-left">oTTe</SheetTitle>
+              <SheetTitle className="text-left">oTTeGames</SheetTitle>
             </SheetHeader>
             <nav className="mt-6 flex flex-col gap-1">
               {links.map((link) => (
@@ -50,9 +50,8 @@ export function SiteHeader() {
           </SheetContent>
         </Sheet>
 
-        <Link href="/" className="flex items-center gap-2 text-foreground">
+        <Link href="/" className="text-foreground" aria-label="oTTeGames">
           <OtteMark />
-          <span className="text-[17px] font-semibold tracking-tight">oTTe</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
