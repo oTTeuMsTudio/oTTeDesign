@@ -20,6 +20,8 @@ export type SceneObject = {
   rotation: Vec3;
   scale: Vec3;
   color: string;
+  roughness: number;
+  metalness: number;
 };
 
 export type SceneSnapshot = {

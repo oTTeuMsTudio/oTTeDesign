@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useEditor } from "@/components/editor/editor-provider";
-import { findObject, isShape } from "@/lib/editor/scene";
+import { findObject, findShadingPresetById, isShape } from "@/lib/editor/scene";
 import type { SceneSnapshot, ShapeKind, Vec3 } from "@/lib/editor/types";
 
 const sceneAccess = {
@@ -191,6 +191,23 @@ function toVec(value?: VecInput): Vec3 | undefined {
   return [value.x, value.y, value.z];
 }
 
+function shadingPatch(input: Record<string, unknown>) {
+  const preset =
+    typeof input.shading === "string"
+      ? findShadingPresetById(input.shading)
+      : null;
+  return {
+    roughness:
+      typeof input.roughness === "number"
+        ? input.roughness
+        : preset?.roughness,
+    metalness:
+      typeof input.metalness === "number"
+        ? input.metalness
+        : preset?.metalness,
+  };
+}
+
 function applyToolPart(
   part: { type: string; input?: unknown; output?: unknown },
   editor: ReturnType<typeof useEditor>,
@@ -205,6 +222,7 @@ function applyToolPart(
       position: toVec(input.position as VecInput | undefined),
       rotation: toVec(input.rotation as VecInput | undefined),
       scale: toVec(input.scale as VecInput | undefined),
+      ...shadingPatch(input),
     });
     return;
   }
@@ -222,6 +240,7 @@ function applyToolPart(
       position: toVec(input.position as VecInput | undefined),
       rotation: toVec(input.rotation as VecInput | undefined),
       scale: toVec(input.scale as VecInput | undefined),
+      ...shadingPatch(input),
     });
     editor.select(target.id);
     return;

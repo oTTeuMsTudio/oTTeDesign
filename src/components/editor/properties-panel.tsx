@@ -4,13 +4,24 @@ import type { ReactNode } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEditor } from "@/components/editor/editor-provider";
+import {
+  findShadingPreset,
+  METALNESS_OPTIONS,
+  resolveShading,
+  ROUGHNESS_OPTIONS,
+  SHADING_PRESETS,
+} from "@/lib/editor/scene";
 import type { Vec3 } from "@/lib/editor/types";
 
 export function PropertiesPanel() {
   const { objects, selected, select, updateObject } = useEditor();
+  const shading = selected ? resolveShading(selected) : null;
+  const activePreset = shading
+    ? findShadingPreset(shading.roughness, shading.metalness)
+    : null;
 
   return (
-    <aside className="pointer-events-none absolute top-3 bottom-12 left-16 z-10 hidden w-52 flex-col gap-2 sm:flex">
+    <aside className="pointer-events-none absolute top-3 bottom-12 left-16 z-10 hidden w-52 flex-col gap-2 overflow-y-auto sm:flex">
       <section className="pointer-events-auto overflow-hidden rounded-xl border border-zinc-200 bg-white/95 shadow-sm backdrop-blur">
         <h2 className="border-b border-zinc-200 px-3 py-2 text-xs font-medium tracking-wide text-zinc-500 uppercase">
           Objects
@@ -41,6 +52,82 @@ export function PropertiesPanel() {
           )}
         </ul>
       </section>
+      {selected && shading ? (
+        <section className="pointer-events-auto rounded-xl border border-zinc-200 bg-white/95 shadow-sm backdrop-blur">
+          <h2 className="border-b border-zinc-200 px-3 py-2 text-xs font-medium tracking-wide text-zinc-500 uppercase">
+            Shading
+          </h2>
+          <div className="space-y-2 p-2 pb-3">
+            <OptionGroup label="Look">
+              {SHADING_PRESETS.map((preset) => (
+                <OptionButton
+                  key={preset.id}
+                  label={preset.label}
+                  pressed={activePreset?.id === preset.id}
+                  onClick={() =>
+                    updateObject(selected.id, {
+                      roughness: preset.roughness,
+                      metalness: preset.metalness,
+                    })
+                  }
+                />
+              ))}
+            </OptionGroup>
+            <OptionGroup label="Roughness" columns={3}>
+              {ROUGHNESS_OPTIONS.map((option) => (
+                <OptionButton
+                  key={option.id}
+                  label={option.label}
+                  pressed={Math.abs(shading.roughness - option.value) < 0.03}
+                  onClick={() =>
+                    updateObject(selected.id, { roughness: option.value })
+                  }
+                />
+              ))}
+            </OptionGroup>
+            <SliderField
+              label="Roughness"
+              value={shading.roughness}
+              onPreview={(roughness) =>
+                updateObject(selected.id, { roughness }, { history: false })
+              }
+              onCheckpoint={() =>
+                updateObject(
+                  selected.id,
+                  { roughness: shading.roughness },
+                  { history: true },
+                )
+              }
+            />
+            <OptionGroup label="Metallic" columns={3}>
+              {METALNESS_OPTIONS.map((option) => (
+                <OptionButton
+                  key={option.id}
+                  label={option.label}
+                  pressed={Math.abs(shading.metalness - option.value) < 0.03}
+                  onClick={() =>
+                    updateObject(selected.id, { metalness: option.value })
+                  }
+                />
+              ))}
+            </OptionGroup>
+            <SliderField
+              label="Metallic"
+              value={shading.metalness}
+              onPreview={(metalness) =>
+                updateObject(selected.id, { metalness }, { history: false })
+              }
+              onCheckpoint={() =>
+                updateObject(
+                  selected.id,
+                  { metalness: shading.metalness },
+                  { history: true },
+                )
+              }
+            />
+          </div>
+        </section>
+      ) : null}
       {selected ? (
         <section className="pointer-events-auto overflow-hidden rounded-xl border border-zinc-200 bg-white/95 shadow-sm backdrop-blur">
           <h2 className="border-b border-zinc-200 px-3 py-2 text-xs font-medium tracking-wide text-zinc-500 uppercase">
@@ -85,6 +172,98 @@ export function PropertiesPanel() {
         </section>
       ) : null}
     </aside>
+  );
+}
+
+function OptionGroup({
+  label,
+  columns = 1,
+  children,
+}: {
+  label: string;
+  columns?: 1 | 3;
+  children: ReactNode;
+}) {
+  return (
+    <div className="space-y-1">
+      <Label className="px-1 text-[11px] text-zinc-500">{label}</Label>
+      <div
+        className={
+          columns === 3 ? "grid grid-cols-3 gap-0.5" : "flex flex-col gap-px"
+        }
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function OptionButton({
+  label,
+  pressed,
+  onClick,
+}: {
+  label: string;
+  pressed: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={pressed}
+      onClick={onClick}
+      className={`w-full rounded-md px-1.5 py-1 text-left text-xs leading-tight ${
+        pressed
+          ? "bg-zinc-100 font-medium text-zinc-950"
+          : "text-zinc-700 hover:bg-zinc-50"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function SliderField({
+  label,
+  value,
+  onPreview,
+  onCheckpoint,
+}: {
+  label: string;
+  value: number;
+  onPreview: (value: number) => void;
+  onCheckpoint: () => void;
+}) {
+  return (
+    <div className="space-y-1 px-1">
+      <div className="flex items-center justify-between">
+        <Label className="text-[11px] text-zinc-500">{label}</Label>
+        <span className="text-[11px] tabular-nums text-zinc-500">
+          {value.toFixed(2)}
+        </span>
+      </div>
+      <input
+        type="range"
+        min={0}
+        max={1}
+        step={0.01}
+        value={value}
+        aria-label={label}
+        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-zinc-200 accent-zinc-950"
+        onPointerDown={onCheckpoint}
+        onKeyDown={(event) => {
+          if (
+            event.key === "ArrowLeft" ||
+            event.key === "ArrowRight" ||
+            event.key === "Home" ||
+            event.key === "End"
+          ) {
+            onCheckpoint();
+          }
+        }}
+        onChange={(event) => onPreview(Number(event.currentTarget.value))}
+      />
+    </div>
   );
 }
 

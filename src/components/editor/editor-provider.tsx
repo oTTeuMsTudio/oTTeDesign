@@ -15,6 +15,7 @@ import {
   createObject,
   findObject,
   isShape,
+  resolveShading,
   starterScene,
 } from "@/lib/editor/scene";
 import type {
@@ -38,7 +39,11 @@ type EditorContextValue = {
   setTransformMode: (mode: TransformMode) => void;
   select: (id: string | null) => void;
   addObject: (shape: ShapeKind, overrides?: Partial<SceneObject>) => string;
-  updateObject: (id: string, patch: Partial<SceneObject>) => void;
+  updateObject: (
+    id: string,
+    patch: Partial<SceneObject>,
+    options?: { history?: boolean },
+  ) => void;
   applyTransform: (id: string, patch: TransformPatch) => void;
   deleteSelected: () => void;
   deleteObject: (idOrName: string) => boolean;
@@ -103,13 +108,17 @@ export function EditorProvider({ children }: { children: ReactNode }) {
   );
 
   const updateObject = useCallback(
-    (id: string, patch: Partial<SceneObject>) => {
+    (
+      id: string,
+      patch: Partial<SceneObject>,
+      options?: { history?: boolean },
+    ) => {
       if (!objects.some((object) => object.id === id)) return;
       const clean = Object.fromEntries(
         Object.entries(patch).filter(([, value]) => value !== undefined),
       ) as Partial<SceneObject>;
       if (Object.keys(clean).length === 0) return;
-      remember(objects);
+      if (options?.history !== false) remember(objects);
       setObjects(
         objects.map((object) =>
           object.id === id ? { ...object, ...clean } : object,
@@ -225,9 +234,9 @@ export function EditorProvider({ children }: { children: ReactNode }) {
       if (!Array.isArray(parsed.objects)) {
         throw new Error("Invalid scene file.");
       }
-      const next = parsed.objects.filter(
-        (object) => object && isShape(object.shape),
-      );
+      const next = parsed.objects
+        .filter((object) => object && isShape(object.shape))
+        .map((object) => ({ ...object, ...resolveShading(object) }));
       remember(objects);
       setObjects(next);
       setRequestedId(next[0]?.id ?? null);

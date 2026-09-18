@@ -10,6 +10,61 @@ const PALETTE = [
   "#8b5cf6",
 ];
 
+export const DEFAULT_ROUGHNESS = 0.42;
+export const DEFAULT_METALNESS = 0.06;
+
+export const SHADING_PRESETS = [
+  { id: "matte", label: "Matte", roughness: 0.92, metalness: 0 },
+  { id: "plastic", label: "Plastic", roughness: 0.42, metalness: 0.06 },
+  { id: "rubber", label: "Rubber", roughness: 0.78, metalness: 0 },
+  { id: "metal", label: "Metal", roughness: 0.25, metalness: 0.88 },
+  { id: "chrome", label: "Chrome", roughness: 0.05, metalness: 1 },
+] as const;
+
+export type ShadingPresetId = (typeof SHADING_PRESETS)[number]["id"];
+
+export const ROUGHNESS_OPTIONS = [
+  { id: "rough", label: "Rough", value: 0.9 },
+  { id: "medium", label: "Medium", value: 0.45 },
+  { id: "smooth", label: "Smooth", value: 0.08 },
+] as const;
+
+export const METALNESS_OPTIONS = [
+  { id: "off", label: "Off", value: 0 },
+  { id: "mixed", label: "Mixed", value: 0.5 },
+  { id: "full", label: "Full", value: 1 },
+] as const;
+
+export function clamp01(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(1, Math.max(0, value));
+}
+
+export function resolveShading(object: Partial<Pick<SceneObject, "roughness" | "metalness">>) {
+  return {
+    roughness: clamp01(
+      typeof object.roughness === "number" ? object.roughness : DEFAULT_ROUGHNESS,
+    ),
+    metalness: clamp01(
+      typeof object.metalness === "number" ? object.metalness : DEFAULT_METALNESS,
+    ),
+  };
+}
+
+export function findShadingPreset(roughness: number, metalness: number) {
+  return (
+    SHADING_PRESETS.find(
+      (preset) =>
+        Math.abs(preset.roughness - roughness) < 0.03 &&
+        Math.abs(preset.metalness - metalness) < 0.03,
+    ) ?? null
+  );
+}
+
+export function findShadingPresetById(id: string) {
+  return SHADING_PRESETS.find((preset) => preset.id === id) ?? null;
+}
+
 export function isShape(value: string): value is ShapeKind {
   return (SHAPES as readonly string[]).includes(value);
 }
@@ -47,6 +102,7 @@ export function createObject(
     rotation: overrides.rotation ?? (shape === "plane" ? [-Math.PI / 2, 0, 0] : [0, 0, 0]),
     scale: overrides.scale ?? (shape === "plane" ? [4, 4, 1] : [1, 1, 1]),
     color: overrides.color ?? PALETTE[index % PALETTE.length],
+    ...resolveShading(overrides),
   };
 }
 

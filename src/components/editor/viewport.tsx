@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, type ComponentRef } from "react";
+import { Suspense, useEffect, useRef, useState, type ComponentRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import {
   ContactShadows,
+  Environment,
   GizmoHelper,
   GizmoViewport,
   Grid,
@@ -13,7 +14,7 @@ import {
 import type { ThreeEvent } from "@react-three/fiber";
 import type { Mesh } from "three";
 import { useEditor } from "@/components/editor/editor-provider";
-import { roundVec } from "@/lib/editor/scene";
+import { resolveShading, roundVec } from "@/lib/editor/scene";
 import type { SceneObject, ShapeKind, TransformMode } from "@/lib/editor/types";
 
 export function Viewport() {
@@ -47,15 +48,18 @@ export function Viewport() {
         gl={{ antialias: true, alpha: false }}
       >
         <color attach="background" args={["#ffffff"]} />
-        <ambientLight intensity={0.85} />
-        <hemisphereLight args={["#ffffff", "#d4d4d8", 0.45]} />
+        <ambientLight intensity={0.42} />
+        <hemisphereLight args={["#ffffff", "#d4d4d8", 0.28]} />
         <directionalLight
           position={[6, 9, 4]}
-          intensity={1.35}
+          intensity={1.15}
           castShadow
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
         />
+        <Suspense fallback={null}>
+          <Environment preset="studio" environmentIntensity={0.65} />
+        </Suspense>
         {showGrid ? (
           <Grid
             args={[20, 20]}
@@ -155,12 +159,7 @@ function SceneMesh({
         onClick={handleClick}
       >
         <ShapeGeometry shape={object.shape} />
-        <meshStandardMaterial
-          color={object.color}
-          wireframe={wireframe}
-          roughness={0.42}
-          metalness={0.06}
-        />
+        <MeshShading object={object} wireframe={wireframe} />
       </mesh>
       {selected && mesh ? (
         <TransformControls
@@ -179,6 +178,25 @@ function SceneMesh({
         />
       ) : null}
     </>
+  );
+}
+
+function MeshShading({
+  object,
+  wireframe,
+}: {
+  object: SceneObject;
+  wireframe: boolean;
+}) {
+  const { roughness, metalness } = resolveShading(object);
+  return (
+    <meshStandardMaterial
+      color={object.color}
+      wireframe={wireframe}
+      roughness={roughness}
+      metalness={metalness}
+      envMapIntensity={1.05}
+    />
   );
 }
 

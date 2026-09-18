@@ -11,6 +11,8 @@ import { xai } from "@ai-sdk/xai";
 import { z } from "zod";
 import type { SceneSnapshot } from "@/lib/editor/types";
 
+const shading = z.enum(["matte", "plastic", "rubber", "metal", "chrome"]);
+
 export const maxDuration = 30;
 
 const vec3 = z.object({
@@ -51,6 +53,7 @@ export async function POST(req: Request) {
 Use tools to change the scene. Prefer concise replies after tools run.
 Coordinates: Y is up. The ground is y=0. Sit solid objects at y=0.5 unless told otherwise.
 Colors should be hex like #ef4444.
+Shading uses roughness 0-1 and metalness 0-1, or presets matte, plastic, rubber, metal, chrome.
 Current scene JSON: ${sceneSummary}`,
     messages: await convertToModelMessages(messages),
     stopWhen: isStepCount(6),
@@ -64,6 +67,9 @@ Current scene JSON: ${sceneSummary}`,
           position: vec3.optional(),
           rotation: vec3.optional(),
           scale: vec3.optional(),
+          roughness: z.number().min(0).max(1).optional(),
+          metalness: z.number().min(0).max(1).optional(),
+          shading: shading.optional(),
         }),
         execute: async (input) => ({ ok: true, action: "addObject", ...input }),
       }),
@@ -77,6 +83,9 @@ Current scene JSON: ${sceneSummary}`,
           position: vec3.optional(),
           rotation: vec3.optional(),
           scale: vec3.optional(),
+          roughness: z.number().min(0).max(1).optional(),
+          metalness: z.number().min(0).max(1).optional(),
+          shading: shading.optional(),
         }),
         execute: async (input) => ({ ok: true, action: "updateObject", ...input }),
       }),

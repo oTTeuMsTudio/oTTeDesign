@@ -6,10 +6,23 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  findShadingPreset,
+  METALNESS_OPTIONS,
+  resolveShading,
+  ROUGHNESS_OPTIONS,
+  SHADING_PRESETS,
+} from "@/lib/editor/scene";
 import { SHAPES, type ShapeKind } from "@/lib/editor/types";
 import { useEditor } from "@/components/editor/editor-provider";
 
@@ -34,6 +47,7 @@ export function EditorMenubar() {
     duplicateSelected,
     deleteSelected,
     selected,
+    updateObject,
     exportScene,
     importScene,
     showGrid,
@@ -43,6 +57,20 @@ export function EditorMenubar() {
     resetCamera,
   } = useEditor();
   const fileRef = useRef<HTMLInputElement>(null);
+  const shading = selected ? resolveShading(selected) : null;
+  const activePreset = shading
+    ? findShadingPreset(shading.roughness, shading.metalness)
+    : null;
+  const roughnessOption =
+    shading &&
+    ROUGHNESS_OPTIONS.find(
+      (option) => Math.abs(option.value - shading.roughness) < 0.03,
+    );
+  const metalnessOption =
+    shading &&
+    METALNESS_OPTIONS.find(
+      (option) => Math.abs(option.value - shading.metalness) < 0.03,
+    );
 
   return (
     <header className="flex h-12 shrink-0 items-center gap-2 border-b border-zinc-200 bg-white px-3">
@@ -87,6 +115,73 @@ export function EditorMenubar() {
               Add {SHAPE_LABELS[shape]}
             </DropdownMenuItem>
           ))}
+        </Menu>
+        <Menu label="Shading">
+          <DropdownMenuLabel>Look</DropdownMenuLabel>
+          <DropdownMenuRadioGroup
+            value={activePreset?.id ?? ""}
+            onValueChange={(id) => {
+              const preset = SHADING_PRESETS.find((item) => item.id === id);
+              if (!selected || !preset) return;
+              updateObject(selected.id, {
+                roughness: preset.roughness,
+                metalness: preset.metalness,
+              });
+            }}
+          >
+            {SHADING_PRESETS.map((preset) => (
+              <DropdownMenuRadioItem
+                key={preset.id}
+                value={preset.id}
+                disabled={!selected}
+              >
+                {preset.label}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger disabled={!selected}>
+              Roughness
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={roughnessOption ? roughnessOption.id : ""}
+                onValueChange={(id) => {
+                  const option = ROUGHNESS_OPTIONS.find((item) => item.id === id);
+                  if (!selected || !option) return;
+                  updateObject(selected.id, { roughness: option.value });
+                }}
+              >
+                {ROUGHNESS_OPTIONS.map((option) => (
+                  <DropdownMenuRadioItem key={option.id} value={option.id}>
+                    {option.label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger disabled={!selected}>
+              Metallic
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={metalnessOption ? metalnessOption.id : ""}
+                onValueChange={(id) => {
+                  const option = METALNESS_OPTIONS.find((item) => item.id === id);
+                  if (!selected || !option) return;
+                  updateObject(selected.id, { metalness: option.value });
+                }}
+              >
+                {METALNESS_OPTIONS.map((option) => (
+                  <DropdownMenuRadioItem key={option.id} value={option.id}>
+                    {option.label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
         </Menu>
         <Menu label="View">
           <DropdownMenuItem onSelect={() => resetCamera()}>Reset camera</DropdownMenuItem>
