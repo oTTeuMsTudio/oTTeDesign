@@ -13,11 +13,11 @@ export async function GET(request: Request) {
           display: "flex",
           width: "100%",
           height: "100%",
-          background: "#0b0d12",
+          background: "#ffffff",
           padding: "64px 72px",
           flexDirection: "column",
           justifyContent: "space-between",
-          color: "#f4f4f5",
+          color: "#09090b",
           position: "relative",
         }}
       >
@@ -25,29 +25,12 @@ export async function GET(request: Request) {
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 16,
-            fontSize: 22,
-            color: "#9aa0ad",
+            fontSize: 28,
+            fontWeight: 650,
+            letterSpacing: "-0.5px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: 40,
-              paddingLeft: 14,
-              paddingRight: 14,
-              borderRadius: 8,
-              background: "#5eead4",
-              color: "#042f2e",
-              fontSize: 18,
-              fontWeight: 650,
-            }}
-          >
-            {siteName.slice(0, 24)}
-          </div>
-          <span>Game marketplace</span>
+          {siteName.slice(0, 24)}
         </div>
         <div
           style={{
@@ -60,7 +43,8 @@ export async function GET(request: Request) {
           <div
             style={{
               display: "flex",
-              fontSize: pageTitle.length > 48 ? 56 : pageTitle.length > 28 ? 68 : 80,
+              fontSize:
+                pageTitle.length > 48 ? 56 : pageTitle.length > 28 ? 68 : 80,
               fontWeight: 600,
               lineHeight: 1.05,
               letterSpacing: "-2px",
@@ -73,7 +57,7 @@ export async function GET(request: Request) {
               style={{
                 display: "flex",
                 fontSize: 28,
-                color: "#9aa0ad",
+                color: "#52525b",
               }}
             >
               {subtitle}
@@ -86,13 +70,13 @@ export async function GET(request: Request) {
             justifyContent: "space-between",
             alignItems: "center",
             fontSize: 20,
-            color: "#9aa0ad",
-            borderTop: "1px solid rgba(255,255,255,0.08)",
+            color: "#71717a",
+            borderTop: "1px solid #e4e4e7",
             paddingTop: 24,
           }}
         >
-          <span>Browse · Buy · Play</span>
-          <span style={{ color: "#5eead4" }}>{siteName}</span>
+          <span>3D editor · primitives · AI assistant</span>
+          <span style={{ color: "#09090b" }}>{siteName}</span>
         </div>
       </div>
     ),

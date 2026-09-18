@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Suspense } from "react";
-import { CartProvider } from "@/components/cart-provider";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { baseURL, description, indexable, siteName, title } from "@/config";
 import "./globals.css";
@@ -26,7 +23,7 @@ export const metadata: Metadata = {
   },
   description,
   applicationName: siteName,
-  category: "games",
+  category: "design",
   robots: { index: indexable, follow: true },
   openGraph: {
     type: "website",
@@ -38,28 +35,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
-      className={`dark ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground">
+      <body className="h-full overflow-hidden bg-white text-black">
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-foreground"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-zinc-950 focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
         >
           Skip to content
         </a>
-        <TooltipProvider>
-          <CartProvider>
-            <Suspense fallback={<div className="h-14 border-b border-border bg-background" />}>
-              <SiteHeader />
-            </Suspense>
-            {children}
-            <SiteFooter />
-          </CartProvider>
-        </TooltipProvider>
+        <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
   );

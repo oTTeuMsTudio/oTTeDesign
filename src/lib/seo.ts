@@ -5,7 +5,6 @@ import {
   indexable,
   siteName,
 } from "@/config";
-import type { Game } from "@/lib/games";
 
 export function absoluteUrl(path: string) {
   return new URL(path, baseURL).href;
@@ -61,34 +60,15 @@ export function pageMetadata(
   };
 }
 
-export function breadcrumbs(items: { name: string; path: string }[]) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: items.map((item, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: item.name,
-      item: absoluteUrl(item.path),
-    })),
-  };
-}
-
 export function websiteJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "WebSite",
+    "@type": ["WebSite", "WebApplication"],
     name: siteName,
     url: baseURL,
     description: defaultDescription,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${baseURL}/games?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
+    applicationCategory: "DesignApplication",
+    operatingSystem: "Web",
   };
 }
 
@@ -100,58 +80,5 @@ export function organizationJsonLd() {
     url: baseURL,
     logo: absoluteUrl("/icon.svg"),
     description: defaultDescription,
-  };
-}
-
-export function itemListJsonLd(
-  name: string,
-  path: string,
-  items: { name: string; path: string }[],
-) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name,
-    url: absoluteUrl(path),
-    numberOfItems: items.length,
-    itemListElement: items.map((item, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      name: item.name,
-      url: absoluteUrl(item.path),
-    })),
-  };
-}
-
-export function videoGameJsonLd(game: Game) {
-  const url = absoluteUrl(`/games/${game.slug}`);
-  return {
-    "@context": "https://schema.org",
-    "@type": ["VideoGame", "Product"],
-    name: game.title,
-    description: game.description,
-    image: absoluteUrl(game.image),
-    url,
-    sku: game.slug,
-    genre: game.genre,
-    keywords: game.tags.join(", "),
-    gamePlatform: game.platforms,
-    author: { "@type": "Organization", name: game.studio },
-    brand: { "@type": "Organization", name: game.studio },
-    offers: {
-      "@type": "Offer",
-      url,
-      price: game.price.toFixed(2),
-      priceCurrency: "USD",
-      availability: "https://schema.org/InStock",
-      itemCondition: "https://schema.org/NewCondition",
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: game.rating,
-      ratingCount: game.ratingCount,
-      bestRating: 5,
-      worstRating: 1,
-    },
   };
 }
